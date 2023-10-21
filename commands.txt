@@ -1,0 +1,10 @@
+cd /media/huan/HD16T/Research/grounded_SAM
+
+
+conda create --name Grounded_SAM
+
+
+
+conda activate Grounded_SAM
+
+
