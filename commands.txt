@@ -1,4 +1,5 @@
 cd /media/huan/HD16T/Research/grounded_SAM
+conda activate dino
 
 
 conda create --name Grounded_SAM

@@ -6,6 +6,13 @@ from glob import glob
 HOME = os.getcwd()
 print("HOME:", HOME)
 
+CLASSES = ['tree trunk']   # DO NOT use "tree_trunk", will return NoneType for class_id
+ # DO NOT use "tree-trunk", may return two classes: tree, trunk
+BOX_TRESHOLD = 0.3
+TEXT_TRESHOLD = 0.1
+
+processed_cnt = 0
+
 # %cd {HOME}
 # !git clone https://github.com/IDEA-Research/GroundingDINO.git  # https://github.com/facebookresearch/dinov2.git
 # %cd {HOME}/GroundingDINO
@@ -193,6 +200,8 @@ def detection_segment(img_file_list, seg=True, save_img=True, save_dir=""):
     # Note the start time
     start_time = time.perf_counter()
 
+    processed_cnt = 0
+
     def save_seg():
         annotated_image = show_detection_segment(image=image, detections=detections)
         if not os.path.exists(save_dir):
@@ -202,6 +211,7 @@ def detection_segment(img_file_list, seg=True, save_img=True, save_dir=""):
         annotated_img_fname = os.path.join(save_dir, basename)
         print("annotated_img_fname:", annotated_img_fname)
         cv2.imwrite(annotated_img_fname, annotated_image)
+        del annotated_image
 
     
     for idx, img_file in enumerate(img_file_list):
@@ -215,10 +225,11 @@ def detection_segment(img_file_list, seg=True, save_img=True, save_dir=""):
             image = cv2.imread(img_file)
             # detect objects
             detections = dino_detection(image_cv=image)
-            if seg:
+            if seg and (len(detections.class_names) > 0): # len(loaded_dict[1].class_names)   # save images with trunks only
+            # if seg:
                 get_mask_from_detection(image, detections)
 
-            img_detect_results.append((img_file, detections))
+            # img_detect_results.append((img_file, detections))  # too many to store them.
 
             save_detection((img_file, detections), save_dir=save_dir)
 
@@ -238,6 +249,9 @@ def detection_segment(img_file_list, seg=True, save_img=True, save_dir=""):
             print(f"Elapsed time: {delta_time(elapsed_time)}. Estimated remaining time: {delta_time(remaining_time):}.")
 
             processed_cnt += 1
+
+            del image
+
  
         except Exception as e:
             print("Error in detection_segment():", idx, img_file, e)
@@ -254,8 +268,8 @@ CLASSES = ['tree trunk']   # DO NOT use "tree_trunk", will return NoneType for c
 
  # DO NOT use "tree-trunk", may return two classes: tree, trunk
 
-BOX_TRESHOLD = 0.3
-TEXT_TRESHOLD = 0.25
+# BOX_TRESHOLD = 0.3
+# TEXT_TRESHOLD = 0.25
 
 from typing import List
 
@@ -291,34 +305,16 @@ img_file_list = glob(os.path.join('/media/huan/HD16T/Research/street_image_mappi
 img_file_list = img_file_list[::-1]
 
 print("Found image count:", len(img_file_list))
-CLASSES = ['tree trunk']   # DO NOT use "tree_trunk", will return NoneType for class_id
- # DO NOT use "tree-trunk", may return two classes: tree, trunk
+
 
 print("Started to detect...")
 
-BOX_TRESHOLD = 0.3
-TEXT_TRESHOLD = 0.1
 
-processed_cnt = 0
 
-img_detect_results = detection_segment(img_file_list[::-1], save_img=False, save_dir=save_dir)
+img_detect_results = detection_segment(img_file_list[65555+734:], save_img=False, save_dir=save_dir)
 
 
 # img_detect_results[-1][1].class_names
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
